@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js");
+      }
+    </script>
+    <title>RR Gaming - Terminal Kasir Utama</title>
+    <style>
+      :root {
+        --bg-dark: #070a12;
+        --card-bg: #0f1626;
+        --border-color: #1e293b;
+        --accent-cyan: #06b6d4;
+        --accent-gold: #f59e0b;
+        --neon-red: #ef4444;
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: var(--bg-dark);
+        color: #f1f5f9;
+        padding: 15px;
+        margin: 0;
+      }
+      .container {
+        max-width: 800px;
+        margin: auto;
+      }
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 20px;
+      }
+      h2 {
+        color: var(--accent-cyan);
+        text-transform: uppercase;
+        font-size: 16px;
+        margin: 0 0 15px 0;
+      }
+      .grid-select {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      .btn-op {
+        background: #162238;
+        border: 2px solid #1e293b;
+        color: #94a3b8;
+        padding: 15px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .btn-op.active {
+        border-color: var(--accent-cyan);
+        color: var(--accent-cyan);
+        background: rgba(6, 182, 212, 0.1);
+      }
+      .input-group {
+        margin-bottom: 15px;
+      }
+      .input-group label {
+        display: block;
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 10px;
+        background: #070a12;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: #fff;
+        box-sizing: border-box;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      th {
+        background: #162238;
+        color: var(--accent-gold);
+        padding: 10px;
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+      td {
+        padding: 8px;
+        border-bottom: 1px solid var(--border-color);
+        text-align: center;
+      }
+      .input-stok {
+        width: 60px;
+        padding: 6px;
+        background: #070a12;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        color: #fff;
+        text-align: center;
+        font-weight: bold;
+      }
+      .btn-kunci {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: var(--accent-gold);
+        font-weight: bold;
+        margin-top: 15px;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin: 8px 0;
+        font-size: 14px;
+      }
+      .total-row {
+        font-size: 18px;
+        color: #00ff88;
+        font-weight: bold;
+      }
+      .selisih-aman {
+        color: #22c55e;
+      }
+      .selisih-minus {
+        color: #ef4444;
+      }
+      .selisih-plus {
+        color: #facc15;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-box" style="text-align: center; padding-bottom: 20px">
+        <h1 style="color: var(--accent-cyan)">⚡ RRGAMING STOK ⚡</h1>
+      </div>
+
+      <div class="card">
+        <h2>👤 Registrasi Operator</h2>
+        <div class="grid-select">
+          <button
+            class="btn-op"
+            id="opFarhan"
+            onclick="pilihOperator('FARHAN')"
+          >
+            FARHAN
+          </button>
+          <button class="btn-op" id="opAdit" onclick="pilihOperator('ADIT')">
+            ADIT
+          </button>
+        </div>
+      </div>
+
+      <div id="areaFormInput" style="display: none">
+        <div class="card">
+          <h2>💰 Uang Kas & Laci</h2>
+          <div class="input-group">
+            <label>Billing Cash</label><input type="number" id="billingCash" />
+          </div>
+          <div class="input-group">
+            <label>Billing QRIS</label><input type="number" id="billingQris" />
+          </div>
+          <div class="input-group">
+            <label>Modal Awal (Receh)</label
+            ><input type="number" id="recehDitinggal" value="100000" />
+          </div>
+          <div class="input-group">
+            <label>Total Fisik Laci</label
+            ><input type="number" id="fisikLaci" />
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>📦 Penghitungan Fisik Stok</h2>
+
+          <button
+            type="button"
+            onclick="window.toggleModeTambahStok()"
+            style="
+              margin-bottom: 10px;
+              background: #06b6d4;
+              color: white;
+              border: none;
+              padding: 8px 12px;
+              border-radius: 5px;
+              cursor: pointer;
+              font-size: 12px;
+            "
+          >
+            ⚙️ Restok Barang
+          </button>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align: left">Nama Barang</th>
+                <th>Stok IN</th>
+                <th>Stok OUT</th>
+                <th class="kolom-tambah-stok" style="display: none">
+                  Tambah Stok
+                </th>
+              </tr>
+            </thead>
+            <tbody id="badanTabelKasir"></tbody>
+          </table>
+
+          <button
+            id="btnPreviewShift"
+            style="
+              width: 100%;
+              padding: 10px;
+              margin-top: 15px;
+              cursor: pointer;
+              background: #1e293b;
+              color: white;
+              border: 1px solid var(--accent-cyan);
+              border-radius: 6px;
+            "
+          >
+            👁️ LIHAT RINGKASAN
+          </button>
+
+          <div
+            id="ringkasanShift"
+            class="card"
+            style="
+              display: none;
+              margin-top: 20px;
+              border-color: var(--accent-cyan);
+            "
+          >
+            <h2>📊 RINGKASAN SHIFT</h2>
+            <div class="summary-row">
+              <span>Billing Cash</span><strong id="sumBillingCash">Rp 0</strong>
+            </div>
+            <div class="summary-row">
+              <span>Billing QRIS</span><strong id="sumBillingQris">Rp 0</strong>
+            </div>
+            <div class="summary-row">
+              <span>Konsumsi</span><strong id="sumKonsumsi">Rp 0</strong>
+            </div>
+            <div class="summary-row">
+              <span>Uang Laci</span><strong id="sumLaci">Rp 0</strong>
+            </div>
+            <div class="summary-row">
+              <span>Selisih</span><strong id="sumSelisih">Rp 0</strong>
+            </div>
+            <hr
+              style="border: 0; border-top: 1px solid #1e293b; margin: 10px 0"
+            />
+            <div class="summary-row total-row">
+              <span>TOTAL PENDAPATAN</span><strong id="sumTotal">Rp 0</strong>
+            </div>
+          </div>
+
+          <button
+            class="btn-kunci"
+            id="btnKunciShift"
+            onclick="prosesKunciDanUpdateShift()"
+          >
+            🔒 KUNCI & LAPORKAN SHIFT
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

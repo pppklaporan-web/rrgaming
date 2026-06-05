@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js');
+  }
+</script>
+    <title>RR Gaming - Dashboard Owner</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      :root {
+        --bg-dark: #070a12;
+        --card-bg: #0f1626;
+        --accent-cyan: #06b6d4;
+        --accent-gold: #f59e0b;
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: var(--bg-dark);
+        color: #f1f5f9;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1000px;
+        margin: auto;
+      }
+      .card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #1e293b;
+      }
+      h2 {
+        color: var(--accent-cyan);
+        text-transform: uppercase;
+        font-size: 18px;
+        margin-top: 0;
+      }
+      .grid-dash {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+      .stat-box {
+        background: #162238;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+      th {
+        background: #1e293b;
+        color: var(--accent-gold);
+        padding: 12px;
+        text-transform: uppercase;
+        font-size: 12px;
+      }
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #1e293b;
+        text-align: center;
+      }
+      button {
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: none;
+        font-weight: bold;
+      }
+      .btn-edit {
+        background: var(--accent-cyan);
+        color: #000;
+      }
+      .btn-del {
+        background: #ef4444;
+        color: #fff;
+      }
+
+      .modal-detail{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.8);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+.modal-detail-content{
+  width:90%;
+  max-width:500px;
+  background:#1e293b;
+  padding:20px;
+  border-radius:15px;
+  color:white;
+}
+
+.modal-detail-content h2{
+  color:#22c55e;
+}
+.maintenance-grid{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+}
+
+.btn-maint{
+  border:none;
+  padding:15px;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  color:white;
+}
+
+.btn-reset{
+  background:#dc2626;
+}
+
+.btn-stock{
+  background:#ea580c;
+}
+
+.btn-export{
+  background:#16a34a;
+}
+
+.btn-operator{
+  background:#2563eb;
+}
+
+/* Tambahkan ini di bagian bawah <style> Anda */
+
+/* Responsif untuk HP */
+@media (max-width: 600px) {
+    body { padding: 10px; }
+    h1 { font-size: 20px; }
+    
+    /* Ubah tabel menjadi list/card di layar kecil */
+    table, thead, tbody, th, td, tr { 
+        display: block; 
+    }
+    thead tr { display: none; } /* Sembunyikan header tabel */
+    tr { 
+        margin-bottom: 15px; 
+        border: 1px solid #1e293b; 
+        padding: 10px; 
+        border-radius: 8px; 
+        background: #0f1626; 
+    }
+    td { 
+        text-align: right; 
+        border-bottom: 1px solid #1e293b; 
+        position: relative; 
+        padding-left: 50%; 
+    }
+    td::before { 
+        position: absolute; 
+        left: 10px; 
+        width: 45%; 
+        padding-right: 10px; 
+        white-space: nowrap; 
+        text-align: left; 
+        font-weight: bold; 
+        color: var(--accent-gold);
+        content: attr(data-label); 
+    }
+}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>⚡ DASHBOARD OWNER ⚡</h1>
+
+      <!-- Ringkasan -->
+      <div class="card">
+        <h2>📊 Ringkasan Hari Ini</h2>
+        <div class="grid-dash">
+
+  <div class="stat-box">
+    Pemasukan
+    <br>
+    <strong id="totalPendapatan">
+      Rp 0
+    </strong>
+  </div>
+
+  <div class="stat-box">
+    Total Konsumsi
+    <br>
+    <strong id="totalKonsumsi">
+      Rp 0
+    </strong>
+  </div>
+
+  <div class="stat-box">
+    Jumlah Shift
+    <br>
+    <strong id="jumlahShift">
+      0
+    </strong>
+  </div>
+
+  <div class="stat-box">
+    Operator Aktif
+    <br>
+    <strong id="jumlahOperator">
+      0
+    </strong>
+  </div>
+
+</div>
+<div class="card">
+
+  <h2>🛠 Owner Maintenance</h2>
+
+  <div class="maintenance-grid">
+
+    <button
+      class="btn-maint btn-reset"
+      onclick="resetShift()">
+
+      🗑 Reset Riwayat Shift
+
+    </button>
+
+    <button
+      class="btn-maint btn-stock"
+      onclick="resetStok()">
+
+      📦 Reset Semua Stok
+
+    </button>
+
+    <button
+      class="btn-maint btn-export"
+      onclick="exportLaporan()">
+
+      📤 Export Laporan
+
+    </button>
+
+    <button
+      class="btn-maint btn-operator"
+      onclick="tambahOperator()">
+
+      👤 Tambah Operator
+
+    </button>
+
+    <button
+class="btn-maint"
+style="background:#7c3aed"
+onclick="backupData()">
+
+💾 Backup Database
+
+</button>
+  </div>
+
+</div>
+      <!-- Stok -->
+      <div class="card">
+        <h2>📦 Stok Produk</h2>
+        <button onclick="tambahProduk()" class="btn-edit">
+          + Tambah Produk
+        </button>
+        <table id="tabelStok">
+          <thead>
+            <tr>
+              <th>Produk</th>
+              <th>Stok</th>
+              <th>Harga</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="badanTabelStok"></tbody>
+        </table>
+      </div>
+
+      <!-- Riwayat -->
+      <div class="card">
+        <h2>📜 Riwayat Shift</h2>
+        <table id="tabelRiwayat">
+          <thead>
+            <thead>
+            <tr>
+            <th>Waktu</th>
+            <th>Operator</th>
+            <th>Pendapatan</th>
+            <th>Selisih</th>
+            <th>Aksi</th>
+            </tr>
+            </thead>
+          <tbody id="badanTabelRiwayat"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      Jumlah Shift
+      <br />
+      <strong id="jumlahShift">0</strong>
+    </div>
+
+    <div class="stat-box">
+      Operator Aktif
+      <br />
+      <strong id="jumlahOperator">0</strong>
+    </div>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        doc,
+        updateDoc,
+        deleteDoc,
+        addDoc,
+        query,
+        orderBy,
+        limit,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBUmvcfP0P47OShnzbMocZVdBT7nU_nSgk",
+        authDomain: "bookingpcrrg.firebaseapp.com",
+        projectId: "bookingpcrrg",
+        storageBucket: "bookingpcrrg.firebasestorage.app",
+        messagingSenderId: "711635585570",
+        appId: "1:711635585570:web:961168f2115e8c78f2587b",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      async function loadData() {
+        // ==========================
+        // LOAD STOK PRODUK
+        // ==========================
+
+        const snapStok = await getDocs(collection(db, "Produk"));
+
+        const tbodyStok = document.getElementById("badanTabelStok");
+
+        tbodyStok.innerHTML = "";
+
+        snapStok.forEach((docSnap) => {
+          const d = docSnap.data();
+
+          tbodyStok.innerHTML += `
+      <tr>
+
+        <td>${d.nama_produk || "-"}</td>
+
+        <td>${d.stok_saat_ini || 0}</td>
+
+        <td>
+          Rp ${Number(d.harga_jual || 0).toLocaleString("id-ID")}
+        </td>
+
+        <td>
+
+          <button
+            class="btn-edit"
+            onclick="editProduk('${docSnap.id}')">
+
+            Edit
+
+          </button>
+
+          <button
+            class="btn-del"
+            onclick="hapusProduk('${docSnap.id}')">
+
+            Hapus
+
+          </button>
+
+        </td>
+
+      </tr>
+    `;
+        });
+
+        
+
+
+        // ==========================
+        // LOAD SHIFT
+        // ==========================
+
+        const qShift = query(
+          collection(db, "Shift"),
+          orderBy("waktu_simpan", "desc"),
+          limit(100),
+        );
+
+        const snapShift = await getDocs(qShift);
+
+        const tbodyRiwayat = document.getElementById("badanTabelRiwayat");
+
+        tbodyRiwayat.innerHTML = "";
+
+        let totalPendapatan = 0;
+        let totalKonsumsi = 0;
+
+        const operatorSet = new Set();
+
+        snapShift.forEach((docSnap) => {
+          const d = docSnap.data();
+
+          totalPendapatan += Number(d.total_pendapatan || 0);
+
+          totalKonsumsi += Number(d.konsumsi || 0);
+
+          if (d.operator) {
+            operatorSet.add(d.operator);
+          }
+
+          let waktu = "-";
+
+          if (d.waktu_simpan && d.waktu_simpan.toDate) {
+            waktu = d.waktu_simpan.toDate().toLocaleString("id-ID");
+          }
+
+          tbodyRiwayat.innerHTML += `
+            <tr>
+
+            <td>${waktu}</td>
+
+            <td>${d.operator || "-"}</td>
+
+            <td>
+            Rp ${Number(
+            d.total_pendapatan || 0
+            ).toLocaleString("id-ID")}
+            </td>
+
+            <td>
+            Rp ${Number(
+            d.selisih || 0
+            ).toLocaleString("id-ID")}
+            </td>
+
+            <td>
+            <button
+            class="btn-edit"
+            onclick="lihatDetail('${docSnap.id}')">
+            👁 Detail
+            </button>
+            </td>
+
+            </tr>
+            `;
+
+            window["shift_"+docSnap.id] = d;
+                    });
+
+                    
+        // ==========================
+        // DASHBOARD
+        // ==========================
+
+        document.getElementById("totalPendapatan").textContent =
+          "Rp " + totalPendapatan.toLocaleString("id-ID");
+
+        document.getElementById("totalKonsumsi").textContent =
+          "Rp " + totalKonsumsi.toLocaleString("id-ID");
+
+        document.getElementById("jumlahShift").textContent = snapShift.size;
+
+        document.getElementById("jumlahOperator").textContent =
+          operatorSet.size;
+      }
+      window.lihatDetail = (id) => {
+      const d = window["shift_" + id];
+      document.getElementById("isiDetailShift").innerHTML = `
+        <p><b>Operator</b><br>${d.operator || "-"}</p>
+        <p><b>Billing Cash</b><br>Rp ${Number(d.billing_cash || 0).toLocaleString("id-ID")}</p>
+        <p><b>Billing QRIS</b><br>Rp ${Number(d.billing_qris || 0).toLocaleString("id-ID")}</p>
+        <p><b>Konsumsi</b><br>Rp ${Number(d.konsumsi || 0).toLocaleString("id-ID")}</p>
+        <p><b>Total Pendapatan</b><br>Rp ${Number(d.total_pendapatan || 0).toLocaleString("id-ID")}</p>
+        <p><b>Selisih</b><br>Rp ${Number(d.selisih || 0).toLocaleString("id-ID")}</p>
+        <button class="btn-edit" onclick="editShift('${id}')">✏️ Edit Data</button>
+      `;
+      document.getElementById("modalDetail").style.display = "flex";
+    };
+
+window.tutupDetail = ()=>{
+
+  document.getElementById(
+    "modalDetail"
+  ).style.display = "none";
+
+};
+
+window.resetShift = async ()=>{
+
+  const ok =
+  await Swal.fire({
+    title:"Reset Riwayat Shift ?",
+    text:"Semua riwayat akan dihapus",
+    icon:"warning",
+    showCancelButton:true
+  });
+
+  if(!ok.isConfirmed) return;
+
+  const snap =
+  await getDocs(
+    collection(db,"Shift")
+  );
+
+  for(const d of snap.docs){
+
+    await deleteDoc(
+      doc(db,"Shift",d.id)
+    );
+
+  }
+
+  Swal.fire(
+    "Berhasil",
+    "Riwayat Shift dihapus",
+    "success"
+  );
+
+  loadData();
+
+};
+
+window.resetStok = async ()=>{
+
+  const ok =
+  await Swal.fire({
+    title:"Reset Semua Stok ?",
+    text:"Stok akan menjadi 0",
+    icon:"warning",
+    showCancelButton:true
+  });
+
+  if(!ok.isConfirmed) return;
+
+  const snap =
+  await getDocs(
+    collection(db,"Produk")
+  );
+
+  for(const d of snap.docs){
+
+    await updateDoc(
+      doc(db,"Produk",d.id),
+      {
+        stok_saat_ini:0
+      }
+    );
+
+  }
+
+  Swal.fire(
+    "Berhasil",
+    "Semua stok menjadi 0",
+    "success"
+  );
+
+  loadData();
+
+};
+
+window.tambahOperator = async ()=>{
+
+  const {value:nama} =
+  await Swal.fire({
+    title:"Tambah Operator",
+    input:"text"
+  });
+
+  if(!nama) return;
+
+  await addDoc(
+    collection(db,"Operator"),
+    {
+      nama:nama.toUpperCase()
+    }
+  );
+
+  Swal.fire(
+    "Berhasil",
+    "Operator ditambahkan",
+    "success"
+  );
+
+};
+
+window.exportLaporan = ()=>{
+
+  window.print();
+
+};
+
+window.editProduk = async (id) => {
+
+  const docRef = doc(db, "Produk", id);
+
+  const snap = await getDocs(
+    collection(db, "Produk")
+  );
+
+  let dataProduk = null;
+
+  snap.forEach((d) => {
+    if (d.id === id) {
+      dataProduk = d.data();
+    }
+  });
+
+  if (!dataProduk) {
+    Swal.fire(
+      "Error",
+      "Produk tidak ditemukan",
+      "error"
+    );
+    return;
+  }
+
+  const { value: formValues } =
+    await Swal.fire({
+      title: "Edit Produk",
+      html: `
+        <input
+          id="editNama"
+          class="swal2-input"
+          value="${dataProduk.nama_produk || ""}"
+          placeholder="Nama Produk">
+
+        <input
+          id="editStok"
+          class="swal2-input"
+          type="number"
+          value="${dataProduk.stok_saat_ini || 0}"
+          placeholder="Stok">
+
+        <input
+          id="editHarga"
+          class="swal2-input"
+          type="number"
+          value="${dataProduk.harga_jual || 0}"
+          placeholder="Harga">
+      `,
+      focusConfirm: false,
+      preConfirm: () => {
+
+        return {
+
+          nama_produk:
+            document.getElementById("editNama").value,
+
+          stok_saat_ini:
+            parseInt(
+              document.getElementById("editStok").value
+            ) || 0,
+
+          harga_jual:
+            parseInt(
+              document.getElementById("editHarga").value
+            ) || 0
+
+        };
+
+      }
+
+    });
+
+  if (!formValues) return;
+
+  await updateDoc(
+    docRef,
+    formValues
+  );
+
+  Swal.fire(
+    "Berhasil",
+    "Produk berhasil diupdate",
+    "success"
+  );
+
+  loadData();
+
+};
+
+window.editShift = async (id) => {
+  const d = window["shift_" + id];
+  const { value: formValues } = await Swal.fire({
+    title: "Edit Shift",
+    html: `
+      <label>Billing Cash</label>
+      <input id="swal-cash" class="swal2-input" type="number" value="${d.billing_cash || 0}">
+      <label>Billing QRIS</label>
+      <input id="swal-qris" class="swal2-input" type="number" value="${d.billing_qris || 0}">
+      <label>Fisik Laci</label>
+      <input id="swal-fisik" class="swal2-input" type="number" value="${d.fisik_laci || 0}">
+    `,
+    preConfirm: () => {
+      return {
+        billing_cash: Number(document.getElementById("swal-cash").value),
+        billing_qris: Number(document.getElementById("swal-qris").value),
+        fisik_laci: Number(document.getElementById("swal-fisik").value)
+      };
+    }
+  });
+
+  if (!formValues) return;
+
+  // Hitung ulang pendapatan & selisih
+  const totalPendapatan = formValues.billing_cash + formValues.billing_qris + Number(d.konsumsi || 0);
+  const selisih = formValues.fisik_laci - totalPendapatan;
+
+  try {
+    await updateDoc(doc(db, "Shift", id), {
+      billing_cash: formValues.billing_cash,
+      billing_qris: formValues.billing_qris,
+      fisik_laci: formValues.fisik_laci,
+      total_pendapatan: totalPendapatan,
+      selisih: selisih
+    });
+    Swal.fire("Berhasil", "Data shift telah diperbarui", "success");
+    tutupDetail();
+    loadData(); // Refresh tampilan
+  } catch (err) {
+    Swal.fire("Gagal", "Error: " + err.message, "error");
+  }
+};
+      loadData();
+      
+    </script>
+    <div id="modalDetail" class="modal-detail">
+
+  <div class="modal-detail-content">
+
+    <h2>📋 Detail Shift</h2>
+
+    <div id="isiDetailShift"></div>
+
+    <button
+      onclick="tutupDetail()"
+      class="btn-edit">
+
+      Tutup
+
+    </button>
+
+  </div>
+
+</div>
+  </body>
+</html>

@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RR Gaming - Booking PC Warnet</title>
+    <style>
+      body {
+        background-color: #0f172a;
+        color: #f8fafc;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .wrapper {
+        background-color: #1e293b;
+        width: 100%;
+        max-width: 450px;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        border: 1px solid #334155;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #22d3ee;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #94a3b8;
+        font-weight: 600;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 12px;
+        background-color: #0f172a;
+        border: 1px solid #475569;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 15px;
+        box-sizing: border-box;
+        transition: all 0.3s ease;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #22d3ee;
+        box-shadow: 0 0 8px rgba(34, 211, 238, 0.5);
+      }
+
+      /* Memperbaiki tampilan input tanggal dan jam bawaan browser agar match dengan tema dark */
+      input[type="date"],
+      input[type="time"] {
+        color-scheme: dark;
+      }
+
+      button {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+      }
+
+      #btnBooking {
+        background-color: #22d3ee;
+        color: #0f172a;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 14px rgba(34, 211, 238, 0.3);
+      }
+
+      #btnBooking:hover {
+        background-color: #06b6d4;
+        transform: translateY(-2px);
+      }
+
+      #btnKritik {
+        background-color: #475569;
+        color: #fff;
+      }
+
+      #btnKritik:hover {
+        background-color: #334155;
+      }
+
+      hr {
+        border: 0;
+        height: 1px;
+        background: #334155;
+        margin: 30px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <h2>🎮 RR Gaming</h2>
+
+      <div class="form-group">
+        <label>Nama Anda</label>
+        <input
+          type="text"
+          id="namaUser"
+          placeholder="Masukkan nama lengkap"
+          required
+        />
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label>Nomor PC (1-20)</label>
+          <input
+            type="number"
+            id="nomorPC"
+            min="1"
+            max="20"
+            placeholder="No. PC"
+            required
+          />
+        </div>
+        <div>
+          <label>Durasi (Jam)</label>
+          <input
+            type="number"
+            id="durasi"
+            min="1"
+            placeholder="Durasi"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label>Tanggal Main</label>
+          <input type="date" id="tanggalMain" required />
+        </div>
+        <div>
+          <label>Jam Mulai</label>
+          <input type="time" id="jamMulai" required />
+        </div>
+      </div>
+
+      <button type="button" id="btnBooking">Booking PC Sekarang</button>
+      <!-- TEMPEL DI BAGIAN BAWAH INDEX.HTML (MENGGANTIKAN LINK SEBELUMNYA) -->
+      <div style="text-align: center; margin-top: 25px">
+        <a
+          href="saran.html"
+          style="
+            color: #94a3b8;
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.2s;
+          "
+          onmouseover="this.style.color = '#eab308'"
+          onmouseout="this.style.color = '#94a3b8'"
+        >
+          🛠️ Ada kendala atau masalah di PC? Laporkan di Sini
+        </a>
+      </div>
+
+      <div class="form-group">
+        <label>Kritik & Saran</label>
+        <textarea
+          id="isiKritik"
+          rows="3"
+          placeholder="Masukan atau kritik untuk warnet..."
+        ></textarea>
+      </div>
+
+      <button type="button" id="btnKritik">Kirim Masukan</button>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        query,
+        where,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBUmvcfP0P47OShnzbMocZVdBT7nU_nSgk",
+        authDomain: "bookingpcrrg.firebaseapp.com",
+        projectId: "bookingpcrrg",
+        storageBucket: "bookingpcrrg.firebasestorage.app",
+        messagingSenderId: "711635585570",
+        appId: "1:711635585570:web:961168f2115e8c78f2587b",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      document
+        .getElementById("btnBooking")
+        .addEventListener("click", async () => {
+          const nama = document.getElementById("namaUser").value;
+          const pc = document.getElementById("nomorPC").value;
+          const durasiJam = document.getElementById("durasi").value;
+          const tanggal = document.getElementById("tanggalMain").value; // Data baru
+          const jam = document.getElementById("jamMulai").value; // Data baru
+
+          if (!nama || !pc || !durasiJam || !tanggal || !jam) {
+            alert("⚠️ Bro, isi semua data jadwal booking dulu ya!");
+            return;
+          }
+
+          try {
+            // --- REVISI VALIDASI: Cek PC + Tanggal + Jam sekaligus ---
+            const qCekJadwal = query(
+              collection(db, "Pemesanan_PC"),
+              where("nomor_pc", "==", parseInt(pc)),
+              where("tanggal_main", "==", tanggal),
+              where("jam_mulai", "==", jam),
+            );
+
+            const querySnapshot = await getDocs(qCekJadwal);
+            let jadwalBentrok = false;
+
+            querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              if (
+                data.status_booking === "Menunggu Konfirmasi" ||
+                data.status_booking === "Disetujui"
+              ) {
+                jadwalBentrok = true;
+              }
+            });
+
+            if (jadwalBentrok) {
+              alert(
+                `❌ Waduh! PC Nomor ${pc} sudah dibooking orang lain untuk tanggal ${tanggal} jam ${jam}. Silakan pilih waktu atau nomor PC lain.`,
+              );
+              return;
+            }
+
+            // --- JIKA JADWAL AMAN, SIMPAN KE DATABASE ---
+            await addDoc(collection(db, "Pemesanan_PC"), {
+              nama_user: nama,
+              nomor_pc: parseInt(pc),
+              durasi_jam: parseInt(durasiJam),
+              tanggal_main: tanggal, // disimpan
+              jam_mulai: jam, // disimpan
+              status_booking: "Menunggu Konfirmasi",
+              waktu_kirim: serverTimestamp(),
+            });
+
+            alert("🎉 Mantap! Jadwal booking berhasil dicatat.");
+
+            // Format Rupiah standar
+            const totalBayarRupiah = new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+              maximumFractionDigits: 0,
+            }).format(totalBayar);
+
+            const nomorWAAdmin = "6281363497557"; // GANTI dengan nomor WA kamu (awali dengan 62)
+
+            // Teks Pesan WA yang Baru (Format Invoice + Instruksi Bayar)
+            const teksPesan = `*╔════════════════════╗*
+            * 🎮 INVOICE BOOKING RR GAMING   *
+            *╚════════════════════╝*
+
+            • *Nama Pelanggan:* ${nama}
+            • *Nomor Meja PC:* PC ${pc}
+            • *Jadwal Main:* ${tanggal} | Jam ${jam} WIB
+            • *Durasi Bermain:* ${durasiJam} Jam
+
+
+            --------------------------------------------
+            💳 *SILAKAN TRANSFER KE:*
+            • *BRI:* 2027-0101-2478-502 (a/n Fitria Desra)
+
+
+            ⚠️ *PENTING:*
+            _Mohon langsung lampirkan *Foto Bukti Transfer* setelah mengirim pesan ini ya bro! Operator akan mengaktifkan PC setelah bukti TF diterima._`;
+
+            // Buka WhatsApp otomatis
+            const urlWA = `https://wa.me/${nomorWAAdmin}?text=${encodeURIComponent(teksPesan)}`;
+            window.open(urlWA, "_blank");
+
+            // Reset Form
+            document.getElementById("namaUser").value = "";
+            document.getElementById("nomorPC").value = "";
+            document.getElementById("durasi").value = "";
+            document.getElementById("tanggalMain").value = "";
+            document.getElementById("jamMulai").value = "";
+          } catch (error) {
+            console.error("Error: ", error);
+            alert("Gagal memproses jadwal.");
+          }
+        });
+
+      // TOMBOL KRITIK & SARAN
+      document
+        .getElementById("btnKritik")
+        .addEventListener("click", async () => {
+          const kritik = document.getElementById("isiKritik").value;
+          if (!kritik) {
+            alert("⚠️ Kotak masukan masih kosong nih!");
+            return;
+          }
+          try {
+            await addDoc(collection(db, "Kritik_Saran"), {
+              isi_pesan: kritik,
+              waktu_kirim: serverTimestamp(),
+            });
+            alert("👍 Terima kasih!");
+            document.getElementById("isiKritik").value = "";
+          } catch (error) {
+            console.error("Error: ", error);
+          }
+        });
+    </script>
+  </body>
+</html>
