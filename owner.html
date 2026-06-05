@@ -3,11 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="./manifest.json">
+
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js');
-  }
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('SW berhasil:', reg.scope))
+      .catch(err => console.error('SW gagal:', err));
+  });
+}
 </script>
     <title>RR Gaming - Dashboard Owner</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
