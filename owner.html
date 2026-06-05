@@ -181,9 +181,89 @@ if ('serviceWorker' in navigator) {
         content: attr(data-label); 
     }
 }
+
+/* SIDEBAR */
+
+.sidebar{
+  position:fixed;
+  top:0;
+  left:-280px;
+  width:260px;
+  height:100%;
+  background:#0f1626;
+  z-index:9999;
+  transition:.3s;
+  padding:20px;
+  border-right:1px solid #1e293b;
+}
+
+.sidebar.active{
+  left:0;
+}
+
+.sidebar h3{
+  color:#06b6d4;
+  margin-bottom:20px;
+}
+
+.sidebar button{
+  width:100%;
+  margin-bottom:10px;
+  background:#162238;
+  color:white;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+}
+
+.menu-btn{
+  display:none;
+  position:fixed;
+  top:15px;
+  left:15px;
+  z-index:10000;
+  background:#06b6d4;
+  color:black;
+  border:none;
+  padding:10px 15px;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+@media(max-width:768px){
+
+  .menu-btn{
+    display:block;
+  }
+
+  body{
+    padding-top:60px;
+  }
+
+}
     </style>
   </head>
   <body>
+
+    <button class="menu-btn" onclick="toggleSidebar()">
+☰ Menu
+</button>
+
+<div class="sidebar" id="sidebar">
+
+  <h3>RR Gaming</h3>
+
+  <button onclick="showSection('stokSection')">
+    📦 Stok Produk
+  </button>
+
+  <button onclick="showSection('shiftSection')">
+    📜 Riwayat Shift
+  </button>
+
+</div>
+
+
     <div class="container">
       <h1>⚡ DASHBOARD OWNER ⚡</h1>
 
@@ -275,8 +355,8 @@ onclick="backupData()">
 
 </div>
       <!-- Stok -->
-      <div class="card">
-        <h2>📦 Stok Produk</h2>
+      <div class="card" id="stokSection">
+      <h2>📦 Stok Produk</h2>
         <button onclick="tambahProduk()" class="btn-edit">
           + Tambah Produk
         </button>
@@ -294,8 +374,8 @@ onclick="backupData()">
       </div>
 
       <!-- Riwayat -->
-      <div class="card">
-        <h2>📜 Riwayat Shift</h2>
+      <div class="card" id="shiftSection">
+  <h2>📜 Riwayat Shift</h2>
         <table id="tabelRiwayat">
           <thead>
             <thead>
@@ -769,5 +849,26 @@ window.editShift = async (id) => {
   </div>
 
 </div>
+
+<script>
+function toggleSidebar(){
+  document
+    .getElementById("sidebar")
+    .classList.toggle("active");
+}
+
+function showSection(id){
+
+  document
+    .getElementById(id)
+    .scrollIntoView({
+      behavior:"smooth"
+    });
+
+  document
+    .getElementById("sidebar")
+    .classList.remove("active");
+}
+</script>
   </body>
 </html>
