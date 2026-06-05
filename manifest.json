@@ -1,7 +1,7 @@
 {
   "name": "RR Gaming System",
   "short_name": "RR Kasir",
-  "start_url": "kasir.html",
+  "start_url": "/kasir.html",
   "display": "standalone",
   "background_color": "#070a12",
   "theme_color": "#06b6d4",
