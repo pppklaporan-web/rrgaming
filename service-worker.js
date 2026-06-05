@@ -1,19 +1,8 @@
 // service-worker.js
-const CACHE_NAME = "rr-gaming-v1";
-const ASSETS = ["/", "/index.html", "/kasir.html", "/owner.html", "/app.js"];
-
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    }),
-  );
+self.addEventListener('install', (event) => {
+    self.skipWaiting();
 });
 
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    }),
-  );
+self.addEventListener('activate', (event) => {
+    event.waitUntil(clients.claim());
 });
